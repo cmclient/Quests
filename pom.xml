@@ -10,6 +10,7 @@
     <packaging>jar</packaging>
 
     <name>Quests</name>
+    <description>A plugin that adds quest functionality to your server.</description>
 
     <properties>
         <java.version>17</java.version>
