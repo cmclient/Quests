@@ -3,4 +3,5 @@ version: '${project.version}'
 main: pl.kuezese.quests.Quests
 api-version: '1.18'
 authors: ['kuezese']
+description: A plugin that adds quest functionality to your server.
 depend: [Citizens, MMOCore, MMOItems]

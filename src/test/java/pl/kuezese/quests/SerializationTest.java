@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class QuestsTest {
+public class SerializationTest {
 
     public static void main(String[] args) {
         // Create active quests and subquests
