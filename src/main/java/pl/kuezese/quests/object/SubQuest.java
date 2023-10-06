@@ -32,6 +32,12 @@ public @Getter @Builder class SubQuest {
     private transient final List<String> redeem; // Messages indicating how to redeem the sub-quest rewards.
     private transient final List<String> alreadyRedeemed; // Messages indicating that the sub-quest has already been redeemed.
 
+    /**
+     * Gets a SubQuest instance by its unique identifier.
+     *
+     * @param subQuestId The unique identifier of the subquest to retrieve.
+     * @return The SubQuest instance with the given identifier.
+     */
     public static SubQuest getById(int subQuestId) {
         return Quests.getInstance().getQuestManager().getQuests().values().stream()
                 .flatMap(quest -> quest.getSubQuests().stream())

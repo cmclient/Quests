@@ -14,13 +14,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class UserSerializer {
 
+    /**
+     * Serializes the progress of a user into a JSON array.
+     *
+     * @param user The user whose progress should be serialized.
+     * @return A JSON array containing the serialized progress.
+     */
     public static JsonArray serializeProgress(User user) {
         JsonArray json = new JsonArray();
         for (Map.Entry<SubQuest, AtomicInteger> entry : user.getProgress().entrySet()) {
             SubQuest subQuest = entry.getKey();
             AtomicInteger progress = entry.getValue();
 
-            // Create an Quest object
+            // Create a JSON object for the quest progress
             JsonObject questObject = new JsonObject();
             questObject.addProperty("subquest-id", subQuest.getId());
             questObject.addProperty("progress", progress.get());
@@ -30,17 +36,23 @@ public class UserSerializer {
         return json;
     }
 
+    /**
+     * Serializes the active sub-quests of a user into a JSON array.
+     *
+     * @param user The user whose active sub-quests should be serialized.
+     * @return A JSON array containing the serialized active sub-quests.
+     */
     public static JsonArray serializeActiveSubQuests(User user) {
         JsonArray json = new JsonArray();
         for (Map.Entry<Quest, SubQuest> entry : user.getActiveSubQuests().entrySet()) {
             Quest quest = entry.getKey();
             SubQuest subQuest = entry.getValue();
 
-            // Create an Quest object
+            // Create a JSON object for the quest and its active sub-quest
             JsonObject questObject = new JsonObject();
             questObject.addProperty("quest-id", quest.getId());
 
-            // Create an Subquest object
+            // Create a JSON object for the active sub-quest
             JsonObject subQuestObject = new JsonObject();
             subQuestObject.addProperty("subquest-id", subQuest.getId());
 
@@ -50,10 +62,16 @@ public class UserSerializer {
         return json;
     }
 
+    /**
+     * Serializes the completed sub-quests of a user into a JSON array.
+     *
+     * @param user The user whose completed sub-quests should be serialized.
+     * @return A JSON array containing the serialized completed sub-quests.
+     */
     public static JsonArray serializeCompletedSubquests(User user) {
         JsonArray json = new JsonArray();
         for (SubQuest subQuest : user.getCompletedSubQuests()) {
-            // Create an Quest object
+            // Create a JSON object for the completed sub-quest
             JsonObject questObject = new JsonObject();
             questObject.addProperty("subquest-id", subQuest.getId());
             json.add(questObject);
@@ -61,6 +79,12 @@ public class UserSerializer {
         return json;
     }
 
+    /**
+     * Deserializes the progress of a user from a JSON array.
+     *
+     * @param progressJson The JSON array containing the serialized progress.
+     * @return A LinkedHashMap mapping sub-quests to their progress.
+     */
     public static LinkedHashMap<SubQuest, AtomicInteger> deserializeProgress(JsonArray progressJson) {
         LinkedHashMap<SubQuest, AtomicInteger> map = new LinkedHashMap<>();
         for (JsonElement jsonElement : progressJson) {
@@ -79,6 +103,12 @@ public class UserSerializer {
         return map;
     }
 
+    /**
+     * Deserializes the active sub-quests of a user from a JSON array.
+     *
+     * @param activeSubQuestsJson The JSON array containing the serialized active sub-quests.
+     * @return A LinkedHashMap mapping quests to their active sub-quests.
+     */
     public static LinkedHashMap<Quest, SubQuest> deserializeActiveSubQuests(JsonArray activeSubQuestsJson) {
         LinkedHashMap<Quest, SubQuest> map = new LinkedHashMap<>();
         for (JsonElement jsonElement : activeSubQuestsJson) {
@@ -103,6 +133,12 @@ public class UserSerializer {
         return map;
     }
 
+    /**
+     * Deserializes the completed sub-quests of a user from a JSON array.
+     *
+     * @param completedSubquestsJson The JSON array containing the serialized completed sub-quests.
+     * @return A LinkedList containing the completed sub-quests.
+     */
     public static LinkedList<SubQuest> deserializeCompletedSubquests(JsonArray completedSubquestsJson) {
         LinkedList<SubQuest> list = new LinkedList<>();
         for (JsonElement jsonElement : completedSubquestsJson) {
