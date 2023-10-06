@@ -1,6 +1,7 @@
 package pl.kuezese.quests;
 
 import lombok.Getter;
+import lombok.Setter;
 import net.Indyuce.mmoitems.api.MMOItemsAPI;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPCRegistry;
@@ -13,6 +14,9 @@ import pl.kuezese.quests.listener.InventoryClickListener;
 import pl.kuezese.quests.listener.PlayerJoinListener;
 import pl.kuezese.quests.manager.QuestManager;
 import pl.kuezese.quests.manager.UserManager;
+
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 /**
  * The main class of the Quests plugin.
@@ -28,6 +32,7 @@ public final @Getter class Quests extends JavaPlugin {
     private MySQLDatabase mySQLDatabase;
     private NPCRegistry npcRegistry;
     private MMOItemsAPI mmoItemsAPI;
+    private @Setter boolean loaded;
 
     /**
      * Constructor for the Quests class.
@@ -73,6 +78,7 @@ public final @Getter class Quests extends JavaPlugin {
         this.getServer().getPluginManager().registerEvents(new EntityInteractListener(this), this);
         this.getServer().getPluginManager().registerEvents(new EntityDeathListener(this), this);
 
+        this.setLoaded(true);
         this.getLogger().info(String.format("Plugin %s by %s has been loaded successfully.", this.getDescription().getFullName(), this.getDescription().getAuthors().get(0)));
     }
 
@@ -81,6 +87,21 @@ public final @Getter class Quests extends JavaPlugin {
      */
     @Override
     public void onDisable() {
+        this.getServer().getScheduler().cancelTasks(this);
+
+        if (!this.isLoaded()) {
+            this.getLogger().warning("Plugin " + getDescription().getFullName() + " by " + getDescription().getAuthors().get(0) + " failed to load!");
+            this.getServer().shutdown();
+            return;
+        }
+
+        this.getMySQLDatabase().getExecutor().shutdown();
+        try {
+            this.getMySQLDatabase().getExecutor().awaitTermination(10, TimeUnit.SECONDS);
+        } catch (InterruptedException ex) {
+            this.getLogger().log(Level.WARNING, "MySQL Error!", ex);
+        }
+
         this.getLogger().info(String.format("Plugin %s by %s has been disabled successfully.", this.getDescription().getFullName(), this.getDescription().getAuthors().get(0)));
     }
 }

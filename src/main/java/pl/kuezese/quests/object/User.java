@@ -1,6 +1,7 @@
 package pl.kuezese.quests.object;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonParser;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,41 @@ public @Getter @Setter @RequiredArgsConstructor @AllArgsConstructor class User {
      */
     public void synchronize() {
         this.lastSynchronize = Instant.now();
-        Quests.getInstance().getServer().getScheduler().runTaskLater(Quests.getInstance(), this::update, 40L);
+        Quests.getInstance().getServer().getScheduler().runTaskLater(Quests.getInstance(), this::download, 40L);
+    }
+
+    /**
+     * Downloads the latest user data from MySQL and updates the user's progress, active subquests, and completed subquests.
+     * This method should be called during synchronization to ensure the user's data is up to date.
+     */
+    public void download() {
+        // Get the MySQLDatabase instance from Quests
+        MySQLDatabase mySQLDatabase = Quests.getInstance().getMySQLDatabase();
+
+        // Define the SQL SELECT statement to retrieve user data
+        String sql = "SELECT progress, active, completed FROM users WHERE uuid = ?";
+
+        try (PreparedStatement preparedStatement = mySQLDatabase.getConnection().prepareStatement(sql)) {
+            // Set the UUID as a parameter for the prepared statement
+            preparedStatement.setString(1, this.uuid.toString());
+
+            // Execute the SELECT statement to retrieve the result set and check if a result was found
+            mySQLDatabase.query(preparedStatement, (rs) -> {
+                try {
+                    if (rs.next()) {
+                        // Update user's data based on the retrieved information
+                        this.progress = UserSerializer.deserializeProgress(JsonParser.parseString(rs.getString("progress")).getAsJsonArray());
+                        this.activeSubQuests = UserSerializer.deserializeActiveSubQuests(JsonParser.parseString(rs.getString("active")).getAsJsonArray());
+                        this.completedSubQuests = UserSerializer.deserializeCompletedSubquests(JsonParser.parseString(rs.getString("completed")).getAsJsonArray());
+                        this.lastSynchronize = Instant.now().minusSeconds(5);
+                    }
+                } catch (Exception ex) {
+                    Quests.getInstance().getLogger().log(Level.WARNING, "Failed to download user data: " + this.uuid.toString() + "!", ex);
+                }
+            });
+        } catch (Exception ex) {
+            Quests.getInstance().getLogger().log(Level.WARNING, "Failed to download user data: " + this.uuid.toString() + "!", ex);
+        }
     }
 
     /**
@@ -80,7 +115,7 @@ public @Getter @Setter @RequiredArgsConstructor @AllArgsConstructor class User {
             preparedStatement.setString(4, this.uuid.toString()); // Match by UUID
 
             // Execute the UPDATE statement
-            mySQLDatabase.update(preparedStatement, () -> this.lastSynchronize = Instant.now().minusSeconds(5));
+            mySQLDatabase.update(preparedStatement);
         } catch (SQLException ex) {
             Quests.getInstance().getLogger().log(Level.WARNING, "Failed to update user: " + this.uuid.toString() + "!", ex);
         }

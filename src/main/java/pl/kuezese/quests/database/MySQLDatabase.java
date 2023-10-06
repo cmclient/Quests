@@ -79,6 +79,14 @@ public @Getter @RequiredArgsConstructor class MySQLDatabase {
         });
     }
 
+    public void query(PreparedStatement preparedStatement, QueryCallback callback) {
+        try (ResultSet rs = preparedStatement.executeQuery()) {
+            callback.accept(rs);
+        } catch (SQLException ex) {
+            this.quests.getLogger().log(Level.WARNING, "MySQL Error!", ex);
+        }
+    }
+
     public void update(PreparedStatement update, Runnable callback) {
         this.executor.submit(() -> {
             try {
