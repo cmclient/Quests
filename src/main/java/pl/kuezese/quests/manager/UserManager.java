@@ -13,9 +13,11 @@ import pl.kuezese.quests.serializer.UserSerializer;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 
 /**
@@ -33,6 +35,20 @@ public @Getter class UserManager {
      */
     public @Nullable User find(UUID uuid) {
         return this.users.get(uuid);
+    }
+
+    /**
+     * Find a user profile by their UUID and perform a specified action on it.
+     *
+     * @param uuid   The UUID of the user to find.
+     * @param action The action to perform on the found user (if exists).
+     * @return The user profile if found, or null if not found.
+     */
+    public @Nullable User find(UUID uuid, Consumer<User> action) {
+        return Optional.ofNullable(users.get(uuid)).map(user -> {
+            action.accept(user);
+            return user;
+        }).orElse(null);
     }
 
     /**

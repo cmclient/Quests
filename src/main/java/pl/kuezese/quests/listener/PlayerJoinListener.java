@@ -40,11 +40,6 @@ public class PlayerJoinListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        User user = this.quests.getUserManager().find(player.getUniqueId());
-
-        // If the user exists, save their data.
-        if (user != null) {
-            user.update();
-        }
+        this.quests.getUserManager().find(player.getUniqueId(), User::update);
     }
 }

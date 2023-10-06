@@ -50,7 +50,7 @@ public final @Getter class Quests extends JavaPlugin {
         this.userManager = new UserManager();
 
         // Register database
-        this.mySQLDatabase = new MySQLDatabase();
+        this.mySQLDatabase = new MySQLDatabase(this);
 
         // Conncet to database and load data
         if (this.mySQLDatabase.connect(this)) {

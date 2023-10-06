@@ -35,7 +35,7 @@ public @Getter @Setter @RequiredArgsConstructor @AllArgsConstructor class User {
      */
     public void synchronize() {
         this.lastSynchronize = Instant.now();
-        this.update();
+        Quests.getInstance().getServer().getScheduler().runTaskLater(Quests.getInstance(), this::update, 40L);
     }
 
     /**
@@ -56,7 +56,7 @@ public @Getter @Setter @RequiredArgsConstructor @AllArgsConstructor class User {
             preparedStatement.setString(4, new Gson().toJson(UserSerializer.serializeCompletedSubquests(this)));
 
             // Execute the INSERT statement
-            preparedStatement.executeUpdate();
+            mySQLDatabase.update(preparedStatement);
         } catch (SQLException ex) {
             Quests.getInstance().getLogger().log(Level.WARNING, "Failed to insert user: " + this.uuid.toString() + "!", ex);
         }
@@ -80,7 +80,7 @@ public @Getter @Setter @RequiredArgsConstructor @AllArgsConstructor class User {
             preparedStatement.setString(4, this.uuid.toString()); // Match by UUID
 
             // Execute the UPDATE statement
-            preparedStatement.executeUpdate();
+            mySQLDatabase.update(preparedStatement, () -> this.lastSynchronize = Instant.now().minusSeconds(5));
         } catch (SQLException ex) {
             Quests.getInstance().getLogger().log(Level.WARNING, "Failed to update user: " + this.uuid.toString() + "!", ex);
         }
@@ -94,6 +94,6 @@ public @Getter @Setter @RequiredArgsConstructor @AllArgsConstructor class User {
     public boolean isSynchronized() {
         Instant currentTime = Instant.now();
         Duration timeElapsed = Duration.between(this.lastSynchronize, currentTime);
-        return timeElapsed.getSeconds() >= 2;
+        return timeElapsed.getSeconds() >= 5;
     }
 }

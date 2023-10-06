@@ -1,50 +1,57 @@
 package pl.kuezese.quests.database;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import pl.kuezese.quests.Quests;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
 
-public @Getter class MySQLDatabase {
+public @Getter @RequiredArgsConstructor class MySQLDatabase {
 
-    private final ExecutorService executor = Executors.newScheduledThreadPool(10);
+    private final Quests quests;
     private Connection connection;
+    private final ExecutorService executor = Executors.newScheduledThreadPool(10);
 
     public boolean connect(Quests quests) {
         try {
             quests.getLogger().info("Connecting to database...");
             Class.forName("com.mysql.cj.jdbc.Driver");
-            connection = DriverManager.getConnection("jdbc:mysql://" + quests.getConfiguration().mysqlHost + ":" + quests.getConfiguration().mysqlPort + "/" + quests.getConfiguration().mysqlDatabase, quests.getConfiguration().mysqlUser, quests.getConfiguration().mysqlPassword);
-            quests.getServer().getScheduler().runTaskTimer(quests, () -> this.execute("SELECT CURTIME()"), 15000L, 15000L);
+            this.connection = DriverManager.getConnection("jdbc:mysql://" + quests.getConfiguration().mysqlHost + ":" + quests.getConfiguration().mysqlPort + "/" + quests.getConfiguration().mysqlDatabase, quests.getConfiguration().mysqlUser, quests.getConfiguration().mysqlPassword);
+            quests.getServer().getScheduler().runTaskTimerAsynchronously(quests, () -> this.execute("SELECT CURTIME()"), 15000L, 15000L);
             return true;
-        } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
-            quests.getLogger().warning("Unable to connect to database. Error: " + e.getMessage());
+        } catch (SQLException | ClassNotFoundException ex) {
+            quests.getLogger().log(Level.WARNING, "MySQL Error!", ex);
             return false;
         }
     }
 
     public void execute(String query) {
-        executor.submit(() -> {
+        try {
+            this.connection.createStatement().execute(query);
+        } catch (SQLException ex) {
+            this.quests.getLogger().log(Level.WARNING, "MySQL Error!", ex);
+        }
+    }
+
+    public void update(String update) {
+        this.executor.submit(() -> {
             try {
-                this.connection.createStatement().execute(query);
-            } catch (SQLException e) {
-                e.printStackTrace();
+                this.connection.createStatement().executeUpdate(update);
+            } catch (SQLException ex) {
+                this.quests.getLogger().log(Level.WARNING, "MySQL Error!", ex);
             }
         });
     }
 
-    public void update(String update) {
-        executor.submit(() -> {
+    public void update(PreparedStatement update) {
+        this.executor.submit(() -> {
             try {
-                connection.createStatement().executeUpdate(update);
-            } catch (SQLException e) {
-                e.printStackTrace();
+                update.executeUpdate();
+            } catch (SQLException ex) {
+                this.quests.getLogger().log(Level.WARNING, "MySQL Error!", ex);
             }
         });
     }
@@ -56,23 +63,34 @@ public @Getter class MySQLDatabase {
         }
 
         try {
-            connection.createStatement().executeUpdate(update);
-        } catch (SQLException e) {
-            e.printStackTrace();
+            this.connection.createStatement().executeUpdate(update);
+        } catch (SQLException ex) {
+            this.quests.getLogger().log(Level.WARNING, "MySQL Error!", ex);
         }
     }
 
     public void query(String query, QueryCallback callback) {
-        executor.submit(() -> {
+        this.executor.submit(() -> {
             try (ResultSet rs = connection.createStatement().executeQuery(query)) {
-                callback.received(rs);
-            } catch (SQLException e) {
-                e.printStackTrace();
+                callback.accept(rs);
+            } catch (SQLException ex) {
+                this.quests.getLogger().log(Level.WARNING, "MySQL Error!", ex);
+            }
+        });
+    }
+
+    public void update(PreparedStatement update, Runnable callback) {
+        this.executor.submit(() -> {
+            try {
+                update.executeUpdate();
+                callback.run();
+            } catch (SQLException ex) {
+                this.quests.getLogger().log(Level.WARNING, "MySQL Error!", ex);
             }
         });
     }
 
     public interface QueryCallback {
-        void received(ResultSet rs);
+        void accept(ResultSet rs);
     }
 }

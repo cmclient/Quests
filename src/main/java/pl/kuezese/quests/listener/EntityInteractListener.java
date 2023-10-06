@@ -10,11 +10,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import pl.kuezese.quests.Quests;
+import pl.kuezese.quests.helper.ChatHelper;
 import pl.kuezese.quests.menu.QuestMenu;
 import pl.kuezese.quests.object.Quest;
 import pl.kuezese.quests.object.SubQuest;
 import pl.kuezese.quests.object.User;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.LinkedList;
 
 /**
@@ -45,6 +48,17 @@ public class EntityInteractListener implements Listener {
             if (quest != null) {
                 Player player = event.getPlayer();
                 User user = this.quests.getUserManager().findOrCreate(player.getUniqueId());
+
+                // Check if user is synchronized
+                if (!user.isSynchronized()) {
+                    Instant currentTime = Instant.now();
+                    Duration timeElapsed = Duration.between(user.getLastSynchronize(), currentTime);
+                    int timeLeft = (int) Math.max(0, 5 - timeElapsed.getSeconds());
+
+                    player.sendMessage(ChatHelper.format(" &8» &7Zaczekaj na synchronizację danych. Pozostało &3" + timeLeft + "s&7."));
+                    return;
+                }
+
                 LinkedList<SubQuest> subQuests = new LinkedList<>(quest.getSubQuests());
 
                 // If there are no sub-quests for this quest, do nothing.
