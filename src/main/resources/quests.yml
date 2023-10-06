@@ -1,0 +1,258 @@
+# Konfiguracja Questów
+
+# W sekcji 'quests' znajdziesz dostępne questy.
+# Upewnij się, że każdy quest jest odpowiednio skonfigurowany pod względem przypisanego NPC.
+# Każdy quest jest zdefiniowany jako osobny wpis w sekcji 'quests'. Pamiętaj o tym, aby każdy wpis miał unikalne ID.
+
+quests:
+  0: # ID danego NPC z pluginu Citizens
+    subquests:
+      rybak-1: # Unikalne ID subquesta (niewidoczne dla graczy, polecam ustawianie typu rybak-1 zeby bylo latwiej znalesc w configu na zmiany w przyszlosci)
+        # Tytuł questa
+        title: '&2&lRYBAK I'
+
+        # Nagroda za ukończenie danego questa
+        rewards:
+          - 'give {PLAYER} diamond_block 64'
+
+        # Typ akcji dla tego questu. Dostępne możliwości:
+        # - ITEM: Sprzedaz danej ilosci przedmiotow
+        # - MOB: Zabicie danej ilosci mobow
+        action: ITEM
+
+        # Wymagany lvl z MMOCore do rozpoczecia questa.
+        mmocore-required-lvl: 0
+
+        # Typ przedmiotu MMOItems. Dostepne możliwości znajdziesz pod komenda:
+        # - /mi list type
+        # Jesli typ akcji to MOB mozesz pozostawic to puste.
+        mmoitem-type: AXE
+
+        # ID przedmiotu MMOItems.
+        mmoitem-id: 'BONE_CRACKER'
+
+        # Nazwa moba dla akcji MOB
+        # Jesli typ akcji to ITEM mozesz pozostawic to puste.
+        mob-name: ''
+
+        # Ilość potrzebnych itemów lub zabitych mobów, aby otrzymać nagrodę
+        amount: 10
+
+        # Wiadomosc do gracza przy pierwszej interakcji z NPC
+        first-interaction:
+          - ''
+          - ' &8▪ &7Witaj &agraczu&7, '
+          - ' &8▪ &7Jestem rybakiem, witam cię w moim zakątku nad morzem.'
+          - ' &8▪ &7Przybyłem z pewnym zadaniem dla ciebie:'
+          - ' &8▪ &7Twoim celem jest zdobycie &310x dorszów&7.'
+          - ''
+
+        # Wiadomosc do gracza przy interakcji z NPC gdy nie posiada wymaganego poziomu na tego questa.
+        no-required-lvl:
+          - ''
+          - ' &8▪ &7Przepraszam, ale nie jesteś jeszcze gotów na to wyzwanie.'
+          - ' &8▪ &7Musisz osiągnąć wyższy poziom, aby podjąć się tego zadania.'
+          - ' &8▪ &7Powróć, gdy będziesz gotów.'
+          - ''
+
+        # Komentarze opisujące kroki postępu questa
+        progress:
+          - ' &8✪ &7Liczba ryb w ekwipunku: &a{AMOUNT}'
+          - ' &8✪ &7Postęp questa: &a{PROGRESS}/{TOTAL}'
+          - ''
+          - ' &a&oKliknij, aby oddać ryby i zwiększyć postęp questa.'
+          - ''
+
+        # Komentarze opisujące informacje o questa
+        description:
+          - ' &7Quest: &2&lRYBAK I'
+          - ''
+          - ' &3⚐ &7Wymagania: '
+          - '  &8- &7Zdobądź &310x dorszów&7.'
+          - ''
+          - ' &a❃ &7Nagroda: '
+          - '  &8- &a64x bloki diamentów&7.'
+          - ''
+
+        # Komentarze informujące, że gracz nie może jeszcze odebrać nagrody
+        cant-redeem:
+          - ' &c❌ &7Nie możesz jeszcze odebrać nagrody.'
+          - ' &3❃ &7Sprawdź postęp questa po lewej stronie.'
+          - ''
+
+        # Komentarze opisujące, jak gracz może odebrać nagrodę
+        redeem:
+          - ' &a✔ &aMożesz odebrać nagrodę.'
+          - ' &a&oKliknij, aby zakończyć questa i odebrać nagrodę.'
+          - ''
+
+        # Komentarze informujące, że gracz już odebrał nagrodę za tego questa
+        already-redeemed:
+          - ' &e⌛ &eJuż odebrałeś nagrodę za tego questa.'
+          - ''
+
+      rybak-2: # Unikalne ID subquesta (niewidoczne dla graczy, polecam ustawianie typu rybak-1 zeby bylo latwiej znalesc w configu na zmiany w przyszlosci)
+        # Tytuł questa
+        title: '&2&lRYBAK II'
+
+        # Nagroda za ukończenie danego questa
+        rewards:
+          - 'give {PLAYER} diamond_block 64'
+
+        # Typ akcji dla tego questu. Dostępne możliwości:
+        # - ITEM: Sprzedaz danej ilosci przedmiotow
+        # - MOB: Zabicie danej ilosci mobow
+        action: ITEM
+
+        # Wymagany lvl z MMOCore do rozpoczecia questa.
+        mmocore-required-lvl: 0
+
+        # Typ przedmiotu MMOItems. Dostepne możliwości znajdziesz pod komenda:
+        # - /mi list type
+        # Jesli typ akcji to MOB mozesz pozostawic to puste.
+        mmoitem-type: AXE
+
+        # ID przedmiotu MMOItems.
+        mmoitem-id: 'BUTCHER_AXE'
+
+        # Nazwa moba dla akcji MOB
+        # Jesli typ akcji to ITEM mozesz pozostawic to puste.
+        mob-name: ''
+
+        # Ilość potrzebnych itemów lub zabitych mobów, aby otrzymać nagrodę
+        amount: 20
+
+        # Wiadomosc do gracza przy pierwszej interakcji z NPC
+        first-interaction:
+          - ''
+          - ' &8▪ &7Witaj &agraczu&7, '
+          - ' &8▪ &7Jestem rybakiem, witam cię w moim zakątku nad morzem.'
+          - ' &8▪ &7Przybyłem z nowym zadaniem dla ciebie:'
+          - ' &8▪ &7Twoim celem jest zdobycie &310x łososi&7.'
+          - ''
+
+        # Wiadomosc do gracza przy interakcji z NPC gdy nie posiada wymaganego poziomu na tego questa.
+        no-required-lvl:
+          - ''
+          - ' &8▪ &7Przepraszam, ale nie jesteś jeszcze gotów na to wyzwanie.'
+          - ' &8▪ &7Musisz osiągnąć wyższy poziom, aby podjąć się tego zadania.'
+          - ' &8▪ &7Powróć, gdy będziesz gotów.'
+          - ''
+
+        # Komentarze opisujące kroki postępu questa
+        progress:
+          - ' &8✪ &7Liczba ryb w ekwipunku: &a{AMOUNT}'
+          - ' &8✪ &7Postęp questa: &a{PROGRESS}/{TOTAL}'
+          - ''
+          - ' &a&oKliknij, aby oddać ryby i zwiększyć postęp questa.'
+          - ''
+
+        # Komentarze opisujące informacje o questa
+        description:
+          - ' &7Quest: &2&lRYBAK II'
+          - ''
+          - ' &3⚐ &7Wymagania: '
+          - '  &8- &7Zdobądź &320x łososiów&7.'
+          - ''
+          - ' &a❃ &7Nagroda: '
+          - '  &8- &a64x bloki diamentów&7.'
+          - ''
+
+        # Komentarze informujące, że gracz nie może jeszcze odebrać nagrody
+        cant-redeem:
+          - ' &c❌ &7Nie możesz jeszcze odebrać nagrody.'
+          - ' &3❃ &7Sprawdź postęp questa po lewej stronie.'
+          - ''
+
+        # Komentarze opisujące, jak gracz może odebrać nagrodę
+        redeem:
+          - ' &a✔ &aMożesz odebrać nagrodę.'
+          - ' &a&oKliknij, aby zakończyć questa i odebrać nagrodę.'
+          - ''
+
+        # Komentarze informujące, że gracz już odebrał nagrodę za tego questa
+        already-redeemed:
+          - ' &e⌛ &eJuż odebrałeś nagrodę za tego questa.'
+          - ''
+  1: # ID danego NPC z pluginu Citizens
+    subquests:
+      kowal-1: # Unikalne ID subquesta (niewidoczne dla graczy, polecam ustawianie typu rybak-1 zeby bylo latwiej znalesc w configu na zmiany w przyszlosci)
+        # Tytuł questa
+        title: '&2&lKOWAL I'
+
+        # Nagroda za ukończenie danego questa
+        rewards:
+          - 'give {PLAYER} netherite_pickaxe 1'
+
+        # Typ akcji dla tego questu. Dostępne możliwości:
+        # - ITEM: Sprzedaz danej ilosci przedmiotow
+        # - MOB: Zabicie danej ilosci mobow
+        action: MOB
+
+        # Wymagany lvl z MMOCore do rozpoczecia questa.
+        mmocore-required-lvl: 0
+
+        # Typ przedmiotu MMOItems. Dostepne możliwości znajdziesz pod komenda:
+        # - /mi list type
+        # Jesli typ akcji to MOB mozesz pozostawic to puste.
+        mmoitem-type: ''
+
+        # ID przedmiotu MMOItems.
+        mmoitem-id: ''
+
+        # Nazwa moba dla akcji MOB
+        # Jesli typ akcji to ITEM mozesz pozostawic to puste.
+        mob-name: 'Wilk'
+
+        # Ilość potrzebnych itemów lub zabitych mobów, aby otrzymać nagrodę
+        amount: 5
+
+        # Wiadomosc do gracza przy pierwszej interakcji z NPC
+        first-interaction:
+          - ''
+          - ' &8▪ &7Witaj &agraczu&7, '
+          - ' &8▪ &7Jestem Kowalem, a to jest moja kuźnia.'
+          - ' &8▪ &7Przyszedłem z ważnym zadaniem dla ciebie:'
+          - ' &8▪ &7Twoim celem jest pozbycie się &35 wilków&7, które grasują w okolicy.'
+          - ''
+
+        # Wiadomosc do gracza przy interakcji z NPC gdy nie posiada wymaganego poziomu na tego questa.
+        no-required-lvl:
+          - ''
+          - ' &8▪ &7Przepraszam, ale nie jesteś jeszcze gotów na to wyzwanie.'
+          - ' &8▪ &7Musisz osiągnąć wyższy poziom, aby podjąć się tego zadania.'
+          - ' &8▪ &7Powróć, gdy będziesz gotów.'
+          - ''
+
+        # Komentarze opisujące kroki postępu questa
+        progress:
+          - ' &8✪ &7Postęp questa: &a{PROGRESS}/{TOTAL}'
+          - ''
+
+        # Komentarze opisujące informacje o questa
+        description:
+          - ' &7Quest: &2&lKOWAL I'
+          - ''
+          - ' &3⚐ &7Wymagania: '
+          - '  &8- &7Zabij &f5x wilkow&7.'
+          - ''
+          - ' &a❃ &7Nagroda: '
+          - '  &8- &5Netherytowy kilof&7.'
+          - ''
+
+        # Komentarze informujące, że gracz nie może jeszcze odebrać nagrody
+        cant-redeem:
+          - ' &c❌ &7Nie możesz jeszcze odebrać nagrody.'
+          - ' &3❃ &7Sprawdź postęp questa po lewej stronie.'
+          - ''
+
+        # Komentarze opisujące, jak gracz może odebrać nagrodę
+        redeem:
+          - ' &a✔ &aMożesz odebrać nagrodę.'
+          - ' &a&oKliknij, aby zakończyć questa i odebrać nagrodę.'
+          - ''
+
+        # Komentarze informujące, że gracz już odebrał nagrodę za tego questa
+        already-redeemed:
+          - ' &e⌛ &eJuż odebrałeś nagrodę za tego questa.'
+          - ''

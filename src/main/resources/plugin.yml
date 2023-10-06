@@ -1,0 +1,6 @@
+name: Quests
+version: '${project.version}'
+main: pl.kuezese.quests.Quests
+api-version: '1.18'
+authors: ['kuezese']
+depend: [Citizens, MMOCore, MMOItems]

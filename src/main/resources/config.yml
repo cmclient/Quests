@@ -1,0 +1,7 @@
+# Konfiguracja bazy danych
+database:
+  host: '172.18.0.1'  # Adres hosta bazy danych
+  port: 3306          # Port, na którym działa baza danych
+  database: 'quests'  # Nazwa bazy danych
+  username: 'root'    # Nazwa użytkownika
+  password: ''        # Hasło do bazy danych (puste w przypadku braku hasła)
