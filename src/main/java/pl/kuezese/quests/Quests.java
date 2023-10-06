@@ -14,7 +14,9 @@ import pl.kuezese.quests.listener.InventoryClickListener;
 import pl.kuezese.quests.listener.PlayerJoinListener;
 import pl.kuezese.quests.manager.QuestManager;
 import pl.kuezese.quests.manager.UserManager;
+import pl.kuezese.quests.object.User;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
@@ -95,7 +97,9 @@ public final @Getter class Quests extends JavaPlugin {
             return;
         }
 
+        this.getServer().getOnlinePlayers().stream().map(this.userManager::find).filter(Objects::nonNull).forEach(User::update);
         this.getMySQLDatabase().getExecutor().shutdown();
+
         try {
             this.getMySQLDatabase().getExecutor().awaitTermination(10, TimeUnit.SECONDS);
         } catch (InterruptedException ex) {

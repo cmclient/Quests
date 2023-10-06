@@ -2,6 +2,7 @@ package pl.kuezese.quests.manager;
 
 import com.google.gson.JsonParser;
 import lombok.Getter;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import pl.kuezese.quests.Quests;
@@ -35,6 +36,16 @@ public @Getter class UserManager {
      */
     public @Nullable User find(UUID uuid) {
         return this.users.get(uuid);
+    }
+
+    /**
+     * Find a user profile by Player.
+     *
+     * @param player The Player of the user to find.
+     * @return The user profile if found, or null if not found.
+     */
+    public @Nullable User find(Player player) {
+        return this.users.get(player.getUniqueId());
     }
 
     /**
