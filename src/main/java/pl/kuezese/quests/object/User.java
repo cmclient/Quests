@@ -142,7 +142,7 @@ public @Getter @Setter @RequiredArgsConstructor @AllArgsConstructor class User {
     }
 
     /**
-     * Checks if the user is synchronized (has waited for a certain duration after joining).
+     * Checks if the user data is synchronized with database
      *
      * @return True if the user is synchronized, false otherwise.
      */
