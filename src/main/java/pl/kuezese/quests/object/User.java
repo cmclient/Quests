@@ -34,7 +34,7 @@ public @Getter @Setter @RequiredArgsConstructor @AllArgsConstructor class User {
     private LinkedHashMap<SubQuest, Instant> cooldownSubQuests = new LinkedHashMap<>(); // Cooldowns for sub-quests for the user.
     private LinkedHashMap<Quest, Double> chanceModifiers = new LinkedHashMap<>(); // Chance modifiers on quests for the user.
     private transient Instant lastSynchronize = Instant.now(); // The timestamp of the last synchronization.
-    private transient SyncState syncState = SyncState.WAITING; // State of synchronization.
+    private transient SyncState syncState = SyncState.IDLE; // State of synchronization.
 
     /**
      * Synchronizes the user's data and updates the last synchronization timestamp.

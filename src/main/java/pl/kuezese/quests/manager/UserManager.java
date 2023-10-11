@@ -100,7 +100,7 @@ public @Getter class UserManager {
                     LinkedHashMap<SubQuest, Instant> cooldownSubQuests = UserSerializer.deserializeCooldownSubQuests(JsonParser.parseString(rs.getString("cooldown")).getAsJsonArray());
                     LinkedHashMap<Quest, Double> chanceModifiers = UserSerializer.deserializeChanceModifiers(JsonParser.parseString(rs.getString("chanceModifiers")).getAsJsonArray());
 
-                    User user = new User(uuid, progress, activeSubquests, completedSubquests, cooldownSubQuests, chanceModifiers, Instant.now(), SyncState.WAITING);
+                    User user = new User(uuid, progress, activeSubquests, completedSubquests, cooldownSubQuests, chanceModifiers, Instant.now(), SyncState.IDLE);
                     this.users.put(user.getUuid(), user);
                 }
             } catch (Throwable ex) {
