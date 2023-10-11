@@ -10,10 +10,7 @@ import pl.kuezese.quests.object.User;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class UserSerializer {
 
@@ -108,81 +105,102 @@ public class UserSerializer {
     /**
      * Deserializes the progress of a user from a JSON array.
      *
-     * @param json The JSON array containing the serialized progress.
+     * @param progressJson The JSON array containing the serialized progress.
      * @return A LinkedHashMap mapping sub-quests to their progress.
      */
-    public static LinkedHashMap<SubQuest, AtomicInteger> deserializeProgress(JsonArray json) {
-        return Stream.of(json)
-                .filter(JsonElement::isJsonObject)
-                .map(JsonElement::getAsJsonObject)
-                .filter(questObject -> questObject.has("subquest-id") && questObject.has("progress"))
-                .collect(Collectors.toMap(
-                        questObject -> SubQuest.getById(questObject.getAsJsonPrimitive("subquest-id").getAsInt()),
-                        questObject -> new AtomicInteger(questObject.getAsJsonPrimitive("progress").getAsInt()),
-                        (existing, replacement) -> {
-                            existing.addAndGet(replacement.get());
-                            return existing;
-                        },
-                        LinkedHashMap::new
-                ));
+    public static LinkedHashMap<SubQuest, AtomicInteger> deserializeProgress(JsonArray progressJson) {
+        LinkedHashMap<SubQuest, AtomicInteger> map = new LinkedHashMap<>();
+        for (JsonElement jsonElement : progressJson) {
+            if (jsonElement.isJsonObject()) {
+                JsonObject questObject = jsonElement.getAsJsonObject();
+                int subQuestId = questObject.getAsJsonPrimitive("subquest-id").getAsInt();
+                int progress = questObject.getAsJsonPrimitive("progress").getAsInt();
+
+                // Retrieve the corresponding SubQuest and update user progress
+                SubQuest subQuest = SubQuest.getById(subQuestId); // Implement getById method as needed
+                if (subQuest != null) {
+                    map.put(subQuest, new AtomicInteger(progress));
+                }
+            }
+        }
+        return map;
     }
 
     /**
      * Deserializes the active sub-quests of a user from a JSON array.
      *
-     * @param json The JSON array containing the serialized active sub-quests.
+     * @param activeSubQuestsJson The JSON array containing the serialized active sub-quests.
      * @return A LinkedHashMap mapping quests to their active sub-quests.
      */
-    public static LinkedHashMap<Quest, SubQuest> deserializeActiveSubQuests(JsonArray json) {
-        return Stream.of(json)
-                .filter(JsonElement::isJsonObject)
-                .map(JsonElement::getAsJsonObject)
-                .filter(questObject -> questObject.has("quest-id") && questObject.has("subquests"))
-                .map(questObject -> questObject.getAsJsonObject("subquests"))
-                .filter(subQuestObject -> subQuestObject.has("subquest-id"))
-                .collect(Collectors.toMap(
-                        questObject -> Quest.getById(questObject.getAsJsonPrimitive("quest-id").getAsInt()),
-                        subQuestObject -> SubQuest.getById(subQuestObject.getAsJsonPrimitive("subquest-id").getAsInt()),
-                        (existing, replacement) -> existing, // No need for merging since keys are unique
-                        LinkedHashMap::new
-                ));
+    public static LinkedHashMap<Quest, SubQuest> deserializeActiveSubQuests(JsonArray activeSubQuestsJson) {
+        LinkedHashMap<Quest, SubQuest> map = new LinkedHashMap<>();
+        for (JsonElement jsonElement : activeSubQuestsJson) {
+            if (jsonElement.isJsonObject()) {
+                JsonObject questObject = jsonElement.getAsJsonObject();
+                int questId = questObject.getAsJsonPrimitive("quest-id").getAsInt();
 
+                if (questObject.has("subquests")) {
+                    JsonObject subQuestObject = questObject.getAsJsonObject("subquests");
+                    int subQuestId = subQuestObject.getAsJsonPrimitive("subquest-id").getAsInt();
+
+                    // Retrieve the corresponding Quest and SubQuest and update user's active sub-quests
+                    Quest quest = Quest.getById(questId); // Implement getById method as needed
+                    SubQuest subQuest = SubQuest.getById(subQuestId); // Implement getById method as needed
+
+                    if (quest != null && subQuest != null) {
+                        map.put(quest, subQuest);
+                    }
+                }
+            }
+        }
+        return map;
     }
 
     /**
      * Deserializes the completed sub-quests of a user from a JSON array.
      *
-     * @param json The JSON array containing the serialized completed sub-quests.
+     * @param completedSubquestsJson The JSON array containing the serialized completed sub-quests.
      * @return A LinkedList containing the completed sub-quests.
      */
-    public static LinkedList<SubQuest> deserializeCompletedSubquests(JsonArray json) {
-        return Stream.of(json)
-                .filter(JsonElement::isJsonObject)
-                .map(JsonElement::getAsJsonObject)
-                .filter(questObject -> questObject.has("subquest-id"))
-                .map(questObject -> questObject.getAsJsonPrimitive("subquest-id").getAsInt())
-                .map(SubQuest::getById)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toCollection(LinkedList::new));
+    public static LinkedList<SubQuest> deserializeCompletedSubquests(JsonArray completedSubquestsJson) {
+        LinkedList<SubQuest> list = new LinkedList<>();
+        for (JsonElement jsonElement : completedSubquestsJson) {
+            if (jsonElement.isJsonObject()) {
+                JsonObject questObject = jsonElement.getAsJsonObject();
+                int subQuestId = questObject.getAsJsonPrimitive("subquest-id").getAsInt();
+
+                // Retrieve the corresponding SubQuest and add it to user's completed sub-quests
+                SubQuest subQuest = SubQuest.getById(subQuestId); // Implement getById method as needed
+                if (subQuest != null) {
+                    list.add(subQuest);
+                }
+            }
+        }
+        return list;
     }
 
     /**
      * Deserializes the cooldown sub-quests of a user from a JSON array.
      *
-     * @param json The JSON array containing the serialized cooldown sub-quests.
+     * @param cooldownSubquestsJson The JSON array containing the serialized cooldown sub-quests.
      * @return A LinkedHashMap mapping sub-quests to their cooldown end times.
      */
-    public static LinkedHashMap<SubQuest, Instant> deserializeCooldownSubQuests(JsonArray json) {
-        return Stream.of(json)
-                .filter(JsonElement::isJsonObject)
-                .map(JsonElement::getAsJsonObject)
-                .filter(subQuestObject -> subQuestObject.has("subquest-id") && subQuestObject.has("cooldown"))
-                .collect(Collectors.toMap(
-                        subQuestObject -> SubQuest.getById(subQuestObject.getAsJsonPrimitive("subquest-id").getAsInt()),
-                        subQuestObject -> Instant.parse(subQuestObject.getAsJsonPrimitive("cooldown").getAsString()),
-                        (existing, replacement) -> existing,
-                        LinkedHashMap::new
-                ));
+    public static LinkedHashMap<SubQuest, Instant> deserializeCooldownSubQuests(JsonArray cooldownSubquestsJson) {
+        LinkedHashMap<SubQuest, Instant> cooldownSubQuests = new LinkedHashMap<>();
+        for (JsonElement jsonElement : cooldownSubquestsJson) {
+            if (jsonElement.isJsonObject()) {
+                JsonObject subQuestObject = jsonElement.getAsJsonObject();
+                int subQuestId = subQuestObject.getAsJsonPrimitive("subquest-id").getAsInt();
+                String cooldownEndTimeStr = subQuestObject.getAsJsonPrimitive("cooldown").getAsString();
+
+                SubQuest subQuest = SubQuest.getById(subQuestId); // Implement getById method as needed
+                if (subQuest != null) {
+                    Instant cooldownEndTime = Instant.parse(cooldownEndTimeStr);
+                    cooldownSubQuests.put(subQuest, cooldownEndTime);
+                }
+            }
+        }
+        return cooldownSubQuests;
     }
 
     /**
@@ -192,15 +210,21 @@ public class UserSerializer {
      * @return A LinkedHashMap mapping Quest objects to their associated chance modifiers.
      */
     public static LinkedHashMap<Quest, Double> deserializeChanceModifiers(JsonArray json) {
-        return Stream.of(json)
-                .filter(JsonElement::isJsonObject)
-                .map(JsonElement::getAsJsonObject)
-                .filter(subQuestObject -> subQuestObject.has("subquest-id") && subQuestObject.has("chance-modifier"))
-                .collect(Collectors.toMap(
-                        subQuestObject -> Quest.getById(subQuestObject.get("subquest-id").getAsInt()),
-                        subQuestObject -> Double.parseDouble(subQuestObject.get("chance-modifier").getAsString()),
-                        (existing, replacement) -> existing,
-                        LinkedHashMap::new
-                ));
+        LinkedHashMap<Quest, Double> chanceModifiers = new LinkedHashMap<>();
+        for (JsonElement element : json) {
+            if (element.isJsonObject()) {
+                JsonObject subQuestObject = element.getAsJsonObject();
+                int subQuestId = subQuestObject.get("subquest-id").getAsInt();
+
+                // Retrieve the corresponding Quest and SubQuest and update user's active sub-quests
+                Quest quest = Quest.getById(subQuestId); // Assuming Quest has a constructor that takes an ID
+
+                if (quest != null) {
+                    double chanceModifier = Double.parseDouble(subQuestObject.get("chance-modifier").getAsString());
+                    chanceModifiers.put(quest, chanceModifier);
+                }
+            }
+        }
+        return chanceModifiers;
     }
 }

@@ -102,11 +102,11 @@ public class InventoryClickListener implements Listener {
                                         ref.ai.incrementAndGet();
                                         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_XYLOPHONE, 1.0f, 1.0f);
                                         player.sendMessage(ChatHelper.format(" &8» &7Oddano &3przedmiot&7."));
-                                        new QuestMenu(this.quests, subQuest, player, user).open(player);
                                     } else {
                                         player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_BREAK, 1.0f, 1.0f);
                                         player.sendMessage(ChatHelper.format(" &8» &cNiestety nie udalo Ci sie oddac przedmiotu&7."));
                                     }
+                                    new QuestMenu(this.quests, subQuest, player, user).open(player);
                                 }, () -> {
                                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, 1.0f, 1.0f);
                                     player.sendMessage(ChatHelper.format(" &8» &cNie masz zadnych przedmiotow do oddania&7."));

@@ -52,8 +52,6 @@ public @Getter class QuestManager {
      * @param quests The Quests plugin instance.
      */
     public void load(Quests quests) {
-        this.quests.clear();
-
         File file = new File(quests.getDataFolder(), "quests.yml");
 
         if (!file.exists()) {

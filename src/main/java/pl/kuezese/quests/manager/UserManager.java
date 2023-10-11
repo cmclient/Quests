@@ -88,6 +88,8 @@ public @Getter class UserManager {
      * @param quests The Quests plugin instance.
      */
     public void load(Quests quests) {
+        this.users.clear();
+
         quests.getMySQLDatabase().query("SELECT * FROM `users`", rs -> {
             try {
                 while (rs.next()) {

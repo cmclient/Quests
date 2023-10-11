@@ -40,6 +40,11 @@ public @Getter @Setter @RequiredArgsConstructor @AllArgsConstructor class User {
      * Synchronizes the user's data and updates the last synchronization timestamp.
      */
     public void synchronize(Player player) {
+        // Check if already synchronizing
+        if (this.syncState == SyncState.UPDATING) {
+            return;
+        }
+
         this.lastSynchronize = Instant.now();
         this.syncState = SyncState.WAITING;
         Quests.getInstance().getServer().getScheduler().runTaskLater(Quests.getInstance(), () -> this.download(player), 40L);
@@ -78,10 +83,12 @@ public @Getter @Setter @RequiredArgsConstructor @AllArgsConstructor class User {
                         this.syncState = SyncState.COMPLETED;
                     }
                 } catch (Exception ex) {
+                    this.syncState = SyncState.ERROR;
                     Quests.getInstance().getLogger().log(Level.WARNING, "Failed to download user data: " + this.uuid.toString() + "!", ex);
                 }
             });
         } catch (Exception ex) {
+            this.syncState = SyncState.ERROR;
             Quests.getInstance().getLogger().log(Level.WARNING, "Failed to download user data: " + this.uuid.toString() + "!", ex);
         }
     }

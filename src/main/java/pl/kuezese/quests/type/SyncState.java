@@ -4,5 +4,6 @@ public enum SyncState {
 
     WAITING,
     UPDATING,
+    ERROR,
     COMPLETED
 }

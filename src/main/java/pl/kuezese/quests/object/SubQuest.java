@@ -73,30 +73,37 @@ public @Getter @Builder class SubQuest {
      */
     public String getRemainingCooldown(User user) {
         Instant currentTime = Instant.now();
-        Instant lastCooldownTime = user.getCooldownSubQuests().getOrDefault(this, currentTime);
-        Duration timeElapsed = Duration.between(lastCooldownTime, currentTime);
+        Instant cooldownExpirationTime = user.getCooldownSubQuests().get(this);
 
-        long secondsRemaining = this.cooldown.minus(timeElapsed).getSeconds();
-        long days = secondsRemaining / (24 * 3600);
-        secondsRemaining %= 24 * 3600;
-        long hours = secondsRemaining / 3600;
-        secondsRemaining %= 3600;
-        long minutes = secondsRemaining / 60;
-        long seconds = secondsRemaining % 60;
+        if (cooldownExpirationTime != null && currentTime.isBefore(cooldownExpirationTime)) {
+            Duration remainingDuration = Duration.between(currentTime, cooldownExpirationTime);
+            long days = remainingDuration.toDays();
+            long hours = remainingDuration.minusDays(days).toHours();
+            long minutes = remainingDuration.minusMinutes(hours).toMinutes();
+            long seconds = remainingDuration.minusMinutes(minutes).toSeconds();
+            long millis = remainingDuration.minusSeconds(seconds).toMillis();
 
-        StringBuilder builder = new StringBuilder();
-        if (days > 0) {
-            builder.append(days).append("d");
-        }
-        if (hours > 0) {
-            builder.append(hours).append("h");
-        }
-        if (minutes > 0) {
-            builder.append(minutes).append("m");
-        }
-        builder.append(seconds).append("s");
+            StringBuilder remainingCooldown = new StringBuilder();
+            if (days > 0) {
+                remainingCooldown.append(days).append("d");
+            }
+            if (hours > 0) {
+                remainingCooldown.append(hours).append("h");
+            }
+            if (minutes > 0) {
+                remainingCooldown.append(minutes).append("m");
+            }
+            if (seconds > 0) {
+                remainingCooldown.append(seconds).append("s");
+            }
+            if (remainingCooldown.isEmpty() && millis > 0) {
+                remainingCooldown.append(millis).append("ms");
+            }
 
-        return builder.toString();
+            return remainingCooldown.toString();
+        }
+
+        return "0s";
     }
 
     public double getChance(User user) {

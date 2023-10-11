@@ -31,6 +31,7 @@ public class QuestsCommand implements CommandExecutor {
                 }
 
                 this.quests.getQuestManager().load(this.quests);
+                this.quests.getUserManager().load(this.quests);
                 sender.sendMessage(ChatHelper.format("&aPrzeladowano konfiguracje questow."));
                 return true;
             }
