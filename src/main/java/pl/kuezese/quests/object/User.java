@@ -116,7 +116,7 @@ public @Getter @Setter @RequiredArgsConstructor @AllArgsConstructor class User {
      * Updates the user's data in the database.
      */
     public void update() {
-        if (!this.isSynchronized())
+        if (!this.isSynchronized(false))
             return;
 
         // Get the MySQLDatabase instance from Quests
@@ -146,12 +146,10 @@ public @Getter @Setter @RequiredArgsConstructor @AllArgsConstructor class User {
      *
      * @return True if the user is synchronized, false otherwise.
      */
-    public boolean isSynchronized() {
+    public boolean isSynchronized(boolean wait) {
         if (this.syncState == SyncState.COMPLETED)
             return true;
 
-        Instant currentTime = Instant.now();
-        Duration timeElapsed = Duration.between(this.lastSynchronize, currentTime);
-        return timeElapsed.getSeconds() >= 5;
+        return wait && Duration.between(this.lastSynchronize, Instant.now()).getSeconds() >= 5;
     }
 }

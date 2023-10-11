@@ -111,53 +111,7 @@ public class InventoryClickListener implements Listener {
                                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, 1.0f, 1.0f);
                                     player.sendMessage(ChatHelper.format(" &8» &cNie masz zadnych przedmiotow do oddania&7."));
                                 });
-
-//                                int remainingAmount = subQuest.getAmount() - ai.get();
-//                                int startAmount = remainingAmount;
-
-//                                Set<ItemStack> items = Stream.of(player.getInventory().getContents())
-//                                        .filter(Objects::nonNull)
-//                                        .filter(ItemHelper::isNotAir)
-//                                        .filter(itemStack -> ItemHelper.isValidItem(itemStack, item))
-//                                        .collect(Collectors.toSet());
-
-//                                for (ItemStack is : items) {
-//                                    if (remainingAmount <= 0)
-//                                        break;
-//
-//                                    if (remainingAmount == is.getAmount()) {
-//                                        player.getInventory().remove(is);
-//                                        ai.addAndGet(remainingAmount);
-//                                        remainingAmount = 0;
-//                                        break;
-//                                    }
-//
-//                                    if (remainingAmount < is.getAmount()) {
-//                                        ai.addAndGet(remainingAmount);
-//                                        is.setAmount(is.getAmount() - remainingAmount);
-//                                        remainingAmount = 0;
-//                                        break;
-//                                    }
-//
-//                                    if (remainingAmount > is.getAmount()) {
-//                                        player.getInventory().remove(is);
-//                                        ai.addAndGet(is.getAmount());
-//                                        remainingAmount -= is.getAmount();
-//                                    }
-//                                }
-//
-//                                int itemsSold = startAmount - remainingAmount;
-//
-//                                if (itemsSold == 0) {
-//                                    player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, 1.0f, 1.0f);
-//                                    player.sendMessage(ChatHelper.format(" &8» &cNie masz zadnych przedmiotow do oddania&7."));
-//                                } else {
-//                                    player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_XYLOPHONE, 1.0f, 1.0f);
-//                                    player.sendMessage(ChatHelper.format(" &8» &7Oddano &3" + itemsSold + " przedmiotow&7."));
-//                                }
-//
-//                                new QuestMenu(this.quests, subQuest, player, user).open(player);
-//                                return;
+                                return;
                             }
 
                             // Logic for claiming the reward for quest.

@@ -50,7 +50,7 @@ public class EntityInteractListener implements Listener {
                 User user = this.quests.getUserManager().findOrCreate(player.getUniqueId());
 
                 // Check if user is synchronized
-                if (!user.isSynchronized()) {
+                if (!user.isSynchronized(true)) {
                     Instant currentTime = Instant.now();
                     Duration timeElapsed = Duration.between(user.getLastSynchronize(), currentTime);
                     int timeLeft = (int) Math.max(0, 5 - timeElapsed.getSeconds());
