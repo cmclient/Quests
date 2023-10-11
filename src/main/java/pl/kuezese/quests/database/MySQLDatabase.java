@@ -34,7 +34,7 @@ public @Getter @RequiredArgsConstructor class MySQLDatabase {
             quests.getServer().getScheduler().runTaskTimerAsynchronously(quests, () -> this.execute("SELECT CURTIME()"), 15000L, 15000L);
             return true;
         } catch (SQLException | ClassNotFoundException ex) {
-            quests.getLogger().log(Level.WARNING, "MySQL Error!", ex);
+            quests.getLogger().log(Level.WARNING, "Failed to connect to MySQL server!", ex);
             return false;
         }
     }
@@ -48,7 +48,7 @@ public @Getter @RequiredArgsConstructor class MySQLDatabase {
         try {
             this.connection.createStatement().execute(query);
         } catch (SQLException ex) {
-            this.quests.getLogger().log(Level.WARNING, "MySQL Error!", ex);
+            this.quests.getLogger().log(Level.WARNING, "Failed to execute MySQL statement!", ex);
         }
     }
 
@@ -62,7 +62,7 @@ public @Getter @RequiredArgsConstructor class MySQLDatabase {
             try {
                 this.connection.createStatement().executeUpdate(update);
             } catch (SQLException ex) {
-                this.quests.getLogger().log(Level.WARNING, "MySQL Error!", ex);
+                this.quests.getLogger().log(Level.WARNING, "Failed to create and update MySQL statement!", ex);
             }
         });
     }
@@ -77,7 +77,7 @@ public @Getter @RequiredArgsConstructor class MySQLDatabase {
             try {
                 update.executeUpdate();
             } catch (SQLException ex) {
-                this.quests.getLogger().log(Level.WARNING, "MySQL Error!", ex);
+                this.quests.getLogger().log(Level.WARNING, "Failed to update prepared MySQL statement!", ex);
             }
         });
     }
@@ -97,7 +97,7 @@ public @Getter @RequiredArgsConstructor class MySQLDatabase {
         try {
             this.connection.createStatement().executeUpdate(update);
         } catch (SQLException ex) {
-            this.quests.getLogger().log(Level.WARNING, "MySQL Error!", ex);
+            this.quests.getLogger().log(Level.WARNING, "Failed to create and update MySQL statement!", ex);
         }
     }
 
@@ -112,7 +112,7 @@ public @Getter @RequiredArgsConstructor class MySQLDatabase {
             try (ResultSet rs = connection.createStatement().executeQuery(query)) {
                 callback.accept(rs);
             } catch (SQLException ex) {
-                this.quests.getLogger().log(Level.WARNING, "MySQL Error!", ex);
+                this.quests.getLogger().log(Level.WARNING, "Failed to create and query MySQL statement!", ex);
             }
         });
     }
@@ -127,25 +127,8 @@ public @Getter @RequiredArgsConstructor class MySQLDatabase {
         try (ResultSet rs = preparedStatement.executeQuery()) {
             callback.accept(rs);
         } catch (SQLException ex) {
-            this.quests.getLogger().log(Level.WARNING, "MySQL Error!", ex);
+            this.quests.getLogger().log(Level.WARNING, "Failed to create and query MySQL statement!", ex);
         }
-    }
-
-    /**
-     * Submits a prepared SQL update query to be executed asynchronously with a callback.
-     *
-     * @param update   The prepared SQL update query to execute.
-     * @param callback A callback function to run after the update.
-     */
-    public void update(PreparedStatement update, Runnable callback) {
-        this.executor.submit(() -> {
-            try {
-                update.executeUpdate();
-                callback.run();
-            } catch (SQLException ex) {
-                this.quests.getLogger().log(Level.WARNING, "MySQL Error!", ex);
-            }
-        });
     }
 
     /**

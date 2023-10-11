@@ -11,7 +11,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.Nullable;
 import pl.kuezese.quests.Quests;
 import pl.kuezese.quests.helper.ChatHelper;
 import pl.kuezese.quests.helper.ItemHelper;
@@ -20,10 +19,10 @@ import pl.kuezese.quests.object.Quest;
 import pl.kuezese.quests.object.User;
 import pl.kuezese.quests.type.QuestAction;
 
+import java.time.Instant;
 import java.util.Objects;
-import java.util.Set;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -65,66 +64,100 @@ public class InventoryClickListener implements Listener {
 
                                 MMOItemTemplate mmoItemTemplate = MMOItems.plugin.getTemplates().getTemplateOrThrow(mmoItemType, mmoItemId.toUpperCase().replace("-", "_"));
                                 MMOItem item = mmoItemTemplate.newBuilder().build();
-                                AtomicInteger ai = user.getProgress().get(subQuest);
+
+                                // Reference of progress to access in lambda
+                                var ref = new Object() {
+                                    AtomicInteger ai = user.getProgress().get(subQuest);
+                                };
 
                                 // If progress doesn't exist, create and initialize it.
-                                if (ai == null) {
-                                    ai = new AtomicInteger(0);
-                                    user.getProgress().put(subQuest, ai);
+                                if (ref.ai == null) {
+                                    ref.ai = new AtomicInteger(0);
+                                    user.getProgress().put(subQuest, ref.ai);
                                 }
 
-                                if (ai.get() >= subQuest.getAmount()) {
+                                if (ref.ai.get() >= subQuest.getAmount()) {
                                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, 1.0f, 1.0f);
                                     player.sendMessage(ChatHelper.format(" &8» &eJuz oddales wszystkie potrzebne przedmioty&7."));
                                     return;
                                 }
 
-                                int remainingAmount = subQuest.getAmount() - ai.get();
-                                int startAmount = remainingAmount;
+                                if (subQuest.isCooldown(user)) {
+                                    player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, 1.0f, 1.0f);
+                                    player.sendMessage(ChatHelper.format(" &8» &7Musisz zaczekac &e" + subQuest.getRemainingCooldown(user) + " &7przed kolejnym oddaniem przedmiotu."));
+                                    return;
+                                }
 
-                                Set<@Nullable ItemStack> items = Stream.of(player.getInventory().getContents())
+                                Optional<ItemStack> questItem = Stream.of(player.getInventory().getContents())
                                         .filter(Objects::nonNull)
                                         .filter(ItemHelper::isNotAir)
                                         .filter(itemStack -> ItemHelper.isValidItem(itemStack, item))
-                                        .collect(Collectors.toSet());
+                                        .findAny();
 
-                                for (ItemStack is : items) {
-                                    if (remainingAmount <= 0)
-                                        break;
-
-                                    if (remainingAmount == is.getAmount()) {
-                                        player.getInventory().remove(is);
-                                        ai.addAndGet(remainingAmount);
-                                        remainingAmount = 0;
-                                        break;
+                                questItem.ifPresentOrElse(itemStack -> {
+                                    if (itemStack.getAmount() > 1) itemStack.setAmount(itemStack.getAmount() - 1);
+                                    else player.getInventory().remove(itemStack);
+                                    user.getCooldownSubQuests().put(subQuest, Instant.now().plus(subQuest.getCooldown()));
+                                    if (Math.random() * 100.0D <= subQuest.getChance(user)) {
+                                        ref.ai.incrementAndGet();
+                                        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_XYLOPHONE, 1.0f, 1.0f);
+                                        player.sendMessage(ChatHelper.format(" &8» &7Oddano &3przedmiot&7."));
+                                        new QuestMenu(this.quests, subQuest, player, user).open(player);
+                                    } else {
+                                        player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_BREAK, 1.0f, 1.0f);
+                                        player.sendMessage(ChatHelper.format(" &8» &cNiestety nie udalo Ci sie oddac przedmiotu&7."));
                                     }
-
-                                    if (remainingAmount < is.getAmount()) {
-                                        ai.addAndGet(remainingAmount);
-                                        is.setAmount(is.getAmount() - remainingAmount);
-                                        remainingAmount = 0;
-                                        break;
-                                    }
-
-                                    if (remainingAmount > is.getAmount()) {
-                                        player.getInventory().remove(is);
-                                        ai.addAndGet(is.getAmount());
-                                        remainingAmount -= is.getAmount();
-                                    }
-                                }
-
-                                int itemsSold = startAmount - remainingAmount;
-
-                                if (itemsSold == 0) {
+                                }, () -> {
                                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, 1.0f, 1.0f);
                                     player.sendMessage(ChatHelper.format(" &8» &cNie masz zadnych przedmiotow do oddania&7."));
-                                } else {
-                                    player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_XYLOPHONE, 1.0f, 1.0f);
-                                    player.sendMessage(ChatHelper.format(" &8» &7Oddano &3" + itemsSold + " przedmiotow&7."));
-                                }
+                                });
 
-                                new QuestMenu(this.quests, subQuest, player, user).open(player);
-                                return;
+//                                int remainingAmount = subQuest.getAmount() - ai.get();
+//                                int startAmount = remainingAmount;
+
+//                                Set<ItemStack> items = Stream.of(player.getInventory().getContents())
+//                                        .filter(Objects::nonNull)
+//                                        .filter(ItemHelper::isNotAir)
+//                                        .filter(itemStack -> ItemHelper.isValidItem(itemStack, item))
+//                                        .collect(Collectors.toSet());
+
+//                                for (ItemStack is : items) {
+//                                    if (remainingAmount <= 0)
+//                                        break;
+//
+//                                    if (remainingAmount == is.getAmount()) {
+//                                        player.getInventory().remove(is);
+//                                        ai.addAndGet(remainingAmount);
+//                                        remainingAmount = 0;
+//                                        break;
+//                                    }
+//
+//                                    if (remainingAmount < is.getAmount()) {
+//                                        ai.addAndGet(remainingAmount);
+//                                        is.setAmount(is.getAmount() - remainingAmount);
+//                                        remainingAmount = 0;
+//                                        break;
+//                                    }
+//
+//                                    if (remainingAmount > is.getAmount()) {
+//                                        player.getInventory().remove(is);
+//                                        ai.addAndGet(is.getAmount());
+//                                        remainingAmount -= is.getAmount();
+//                                    }
+//                                }
+//
+//                                int itemsSold = startAmount - remainingAmount;
+//
+//                                if (itemsSold == 0) {
+//                                    player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, 1.0f, 1.0f);
+//                                    player.sendMessage(ChatHelper.format(" &8» &cNie masz zadnych przedmiotow do oddania&7."));
+//                                } else {
+//                                    player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_XYLOPHONE, 1.0f, 1.0f);
+//                                    player.sendMessage(ChatHelper.format(" &8» &7Oddano &3" + itemsSold + " przedmiotow&7."));
+//                                }
+//
+//                                new QuestMenu(this.quests, subQuest, player, user).open(player);
+//                                return;
                             }
 
                             // Logic for claiming the reward for quest.

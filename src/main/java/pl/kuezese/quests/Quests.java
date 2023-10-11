@@ -6,6 +6,7 @@ import net.Indyuce.mmoitems.api.MMOItemsAPI;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPCRegistry;
 import org.bukkit.plugin.java.JavaPlugin;
+import pl.kuezese.quests.command.QuestsCommand;
 import pl.kuezese.quests.config.Configuration;
 import pl.kuezese.quests.database.MySQLDatabase;
 import pl.kuezese.quests.listener.EntityDeathListener;
@@ -59,10 +60,10 @@ public final @Getter class Quests extends JavaPlugin {
         // Register database
         this.mySQLDatabase = new MySQLDatabase(this);
 
-        // Conncet to database and load data
+        // Connect to database and load data
         if (this.mySQLDatabase.connect(this)) {
             // Create the 'users' table if it doesn't exist
-            this.mySQLDatabase.update("CREATE TABLE IF NOT EXISTS `users` (`uuid` varchar(36) PRIMARY KEY NOT NULL, `progress` LONGTEXT NOT NULL, `active` LONGTEXT NOT NULL, `completed` LONGTEXT NOT NULL);", false);
+            this.mySQLDatabase.update("CREATE TABLE IF NOT EXISTS `users` (`uuid` varchar(36) PRIMARY KEY NOT NULL, `progress` LONGTEXT NOT NULL, `active` LONGTEXT NOT NULL, `completed` LONGTEXT NOT NULL, `cooldown` LONGTEXT NOT NULL, `chanceModifiers` LONGTEXT NOT NULL);", false);
             // Load user data
             this.userManager.load(this);
         } else {
@@ -73,6 +74,9 @@ public final @Getter class Quests extends JavaPlugin {
         // Register 3rd party API
         this.npcRegistry = CitizensAPI.getNPCRegistry();
         this.mmoItemsAPI = new MMOItemsAPI(this);
+
+        // Register commands
+        Objects.requireNonNull(this.getCommand("quests")).setExecutor(new QuestsCommand(this));
 
         // Register listeners
         this.getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);

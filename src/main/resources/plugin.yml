@@ -5,3 +5,7 @@ api-version: '1.18'
 authors: ['kuezese']
 description: ${project.description}
 depend: [Citizens, MMOCore, MMOItems]
+
+commands:
+  quests:
+    aliases: [kquests, quest, questy]

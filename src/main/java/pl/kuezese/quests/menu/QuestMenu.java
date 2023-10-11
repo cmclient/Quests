@@ -59,6 +59,7 @@ public class QuestMenu {
                     .sum();
 
             ChatHelper.replace(progress, "{AMOUNT}", String.valueOf(amount));
+            ChatHelper.replace(progress, "{CHANCE}", String.format("%.2f", subQuest.getChance(user)));
         }
 
         // Set items in the inventory.

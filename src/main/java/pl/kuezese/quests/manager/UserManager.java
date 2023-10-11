@@ -10,6 +10,7 @@ import pl.kuezese.quests.object.Quest;
 import pl.kuezese.quests.object.SubQuest;
 import pl.kuezese.quests.object.User;
 import pl.kuezese.quests.serializer.UserSerializer;
+import pl.kuezese.quests.type.SyncState;
 
 import java.time.Instant;
 import java.util.LinkedHashMap;
@@ -94,8 +95,10 @@ public @Getter class UserManager {
                     LinkedHashMap<SubQuest, AtomicInteger> progress = UserSerializer.deserializeProgress(JsonParser.parseString(rs.getString("progress")).getAsJsonArray());
                     LinkedHashMap<Quest, SubQuest> activeSubquests = UserSerializer.deserializeActiveSubQuests(JsonParser.parseString(rs.getString("active")).getAsJsonArray());
                     LinkedList<SubQuest> completedSubquests = UserSerializer.deserializeCompletedSubquests(JsonParser.parseString(rs.getString("completed")).getAsJsonArray());
+                    LinkedHashMap<SubQuest, Instant> cooldownSubQuests = UserSerializer.deserializeCooldownSubQuests(JsonParser.parseString(rs.getString("cooldown")).getAsJsonArray());
+                    LinkedHashMap<Quest, Double> chanceModifiers = UserSerializer.deserializeChanceModifiers(JsonParser.parseString(rs.getString("chanceModifiers")).getAsJsonArray());
 
-                    User user = new User(uuid, progress, activeSubquests, completedSubquests, Instant.now());
+                    User user = new User(uuid, progress, activeSubquests, completedSubquests, cooldownSubQuests, chanceModifiers, Instant.now(), SyncState.WAITING);
                     this.users.put(user.getUuid(), user);
                 }
             } catch (Throwable ex) {

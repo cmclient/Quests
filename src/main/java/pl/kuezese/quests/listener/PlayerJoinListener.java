@@ -29,7 +29,7 @@ public class PlayerJoinListener implements Listener {
         User user = this.quests.getUserManager().findOrCreate(player.getUniqueId());
 
         // Synchronize user data.
-        user.synchronize();
+        user.synchronize(player);
     }
 
     /**

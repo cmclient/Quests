@@ -7,7 +7,10 @@ import net.Indyuce.mmoitems.api.Type;
 import pl.kuezese.quests.Quests;
 import pl.kuezese.quests.type.QuestAction;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents a sub-quest in a larger quest. Sub-quests are used to define specific tasks or objectives within a quest.
@@ -15,13 +18,15 @@ import java.util.List;
 public @Getter @Builder class SubQuest {
 
     private final int id; // The id of this sub-quest.
-    private transient @Setter Quest quest;
+    private transient @Setter Quest quest; // The parent quest associated with this sub-quest.
     private transient final QuestAction action; // The type of quest action associated with this sub-quest.
-    private transient final int mmoCoreRequiredLvl;
-    private transient final Type mmoItemType;
-    private transient final String mmoItemId;
-    private transient final String mobName;
+    private transient final int mmoCoreRequiredLvl; // The required level in the MMO Core for this sub-quest.
+    private transient final Type mmoItemType; // The type of MMO item required for this sub-quest.
+    private transient final String mmoItemId; // The unique identifier of the MMO item required for this sub-quest.
+    private transient final String mobName; // The name of the mob associated with this sub-quest.
     private transient final int amount; // The required amount or quantity to complete the sub-quest.
+    private transient final Duration cooldown; // The cooldown duration for this sub-quest.
+    private transient final double chance; // The chance for this sub-quest.
     private transient final List<String> rewards; // List of rewards given upon sub-quest completion.
     private transient final String title; // The title or name of the sub-quest.
     private transient final List<String> firstInteraction; // List of progress messages on player's first interaction with NPC.
@@ -43,5 +48,58 @@ public @Getter @Builder class SubQuest {
                 .flatMap(quest -> quest.getSubQuests().stream())
                 .filter(subQuest -> subQuest.getId() == subQuestId).findAny()
                 .orElse(null);
+    }
+
+    /**
+     * Checks if a user is on cooldown for this sub-quest.
+     *
+     * @param user The user for whom to check the cooldown.
+     * @return true if the user is on cooldown, false otherwise.
+     */
+    public boolean isCooldown(User user) {
+        Instant currentTime = Instant.now();
+        Instant cooldownExpirationTime = user.getCooldownSubQuests().get(this);
+
+        return Optional.ofNullable(cooldownExpirationTime)
+                .map(currentTime::isBefore)
+                .orElse(false);
+    }
+
+    /**
+     * Get the remaining cooldown in a concise format like "XdYhZmWs".
+     *
+     * @param user The user for whom to check the remaining cooldown.
+     * @return The remaining cooldown formatted in a concise way.
+     */
+    public String getRemainingCooldown(User user) {
+        Instant currentTime = Instant.now();
+        Instant lastCooldownTime = user.getCooldownSubQuests().getOrDefault(this, currentTime);
+        Duration timeElapsed = Duration.between(lastCooldownTime, currentTime);
+
+        long secondsRemaining = this.cooldown.minus(timeElapsed).getSeconds();
+        long days = secondsRemaining / (24 * 3600);
+        secondsRemaining %= 24 * 3600;
+        long hours = secondsRemaining / 3600;
+        secondsRemaining %= 3600;
+        long minutes = secondsRemaining / 60;
+        long seconds = secondsRemaining % 60;
+
+        StringBuilder builder = new StringBuilder();
+        if (days > 0) {
+            builder.append(days).append("d");
+        }
+        if (hours > 0) {
+            builder.append(hours).append("h");
+        }
+        if (minutes > 0) {
+            builder.append(minutes).append("m");
+        }
+        builder.append(seconds).append("s");
+
+        return builder.toString();
+    }
+
+    public double getChance(User user) {
+        return this.getChance() * user.getChanceModifiers().getOrDefault(this.quest, 1.0);
     }
 }

@@ -7,9 +7,9 @@ import pl.kuezese.quests.object.Quest;
 import pl.kuezese.quests.object.SubQuest;
 import pl.kuezese.quests.object.User;
 
+import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class UserSerializer {
@@ -21,19 +21,14 @@ public class UserSerializer {
      * @return A JSON array containing the serialized progress.
      */
     public static JsonArray serializeProgress(User user) {
-        JsonArray json = new JsonArray();
-        for (Map.Entry<SubQuest, AtomicInteger> entry : user.getProgress().entrySet()) {
-            SubQuest subQuest = entry.getKey();
-            AtomicInteger progress = entry.getValue();
-
-            // Create a JSON object for the quest progress
-            JsonObject questObject = new JsonObject();
-            questObject.addProperty("subquest-id", subQuest.getId());
-            questObject.addProperty("progress", progress.get());
-
-            json.add(questObject);
-        }
-        return json;
+        return user.getProgress().entrySet().stream()
+                .map(entry -> {
+                    JsonObject questObject = new JsonObject();
+                    questObject.addProperty("subquest-id", entry.getKey().getId());
+                    questObject.addProperty("progress", entry.getValue().get());
+                    return questObject;
+                })
+                .collect(JsonArray::new, JsonArray::add, JsonArray::addAll);
     }
 
     /**
@@ -43,23 +38,18 @@ public class UserSerializer {
      * @return A JSON array containing the serialized active sub-quests.
      */
     public static JsonArray serializeActiveSubQuests(User user) {
-        JsonArray json = new JsonArray();
-        for (Map.Entry<Quest, SubQuest> entry : user.getActiveSubQuests().entrySet()) {
-            Quest quest = entry.getKey();
-            SubQuest subQuest = entry.getValue();
+        return user.getActiveSubQuests().entrySet().stream()
+                .map(entry -> {
+                    JsonObject questObject = new JsonObject();
+                    questObject.addProperty("quest-id", entry.getKey().getId());
 
-            // Create a JSON object for the quest and its active sub-quest
-            JsonObject questObject = new JsonObject();
-            questObject.addProperty("quest-id", quest.getId());
+                    JsonObject subQuestObject = new JsonObject();
+                    subQuestObject.addProperty("subquest-id", entry.getValue().getId());
 
-            // Create a JSON object for the active sub-quest
-            JsonObject subQuestObject = new JsonObject();
-            subQuestObject.addProperty("subquest-id", subQuest.getId());
-
-            questObject.add("subquests", subQuestObject);
-            json.add(questObject);
-        }
-        return json;
+                    questObject.add("subquests", subQuestObject);
+                    return questObject;
+                })
+                .collect(JsonArray::new, JsonArray::add, JsonArray::addAll);
     }
 
     /**
@@ -69,14 +59,47 @@ public class UserSerializer {
      * @return A JSON array containing the serialized completed sub-quests.
      */
     public static JsonArray serializeCompletedSubquests(User user) {
-        JsonArray json = new JsonArray();
-        for (SubQuest subQuest : user.getCompletedSubQuests()) {
-            // Create a JSON object for the completed sub-quest
-            JsonObject questObject = new JsonObject();
-            questObject.addProperty("subquest-id", subQuest.getId());
-            json.add(questObject);
-        }
-        return json;
+        return user.getCompletedSubQuests().stream()
+                .map(subQuest -> {
+                    JsonObject questObject = new JsonObject();
+                    questObject.addProperty("subquest-id", subQuest.getId());
+                    return questObject;
+                })
+                .collect(JsonArray::new, JsonArray::add, JsonArray::addAll);
+    }
+
+    /**
+     * Serializes the cooldown sub-quests of a user into a JSON array.
+     *
+     * @param user The user whose cooldown sub-quests should be serialized.
+     * @return A JSON array containing the serialized cooldown sub-quests.
+     */
+    public static JsonArray serializeCooldownSubQuests(User user) {
+        return user.getCooldownSubQuests().entrySet().stream()
+                .map(entry -> {
+                    JsonObject subQuestObject = new JsonObject();
+                    subQuestObject.addProperty("subquest-id", entry.getKey().getId());
+                    subQuestObject.addProperty("cooldown", entry.getValue().toString());
+                    return subQuestObject;
+                })
+                .collect(JsonArray::new, JsonArray::add, JsonArray::addAll);
+    }
+
+    /**
+     * Serializes the chance modifiers of a user into a JSON array.
+     *
+     * @param user The user whose chance modifiers should be serialized.
+     * @return A JSON array containing the serialized chance modifiers.
+     */
+    public static JsonArray serializeChanceModifiers(User user) {
+        return user.getChanceModifiers().entrySet().stream()
+                .map(entry -> {
+                    JsonObject subQuestObject = new JsonObject();
+                    subQuestObject.addProperty("subquest-id", entry.getKey().getId());
+                    subQuestObject.addProperty("chance-modifier", entry.getValue().toString());
+                    return subQuestObject;
+                })
+                .collect(JsonArray::new, JsonArray::add, JsonArray::addAll);
     }
 
     /**
@@ -154,5 +177,54 @@ public class UserSerializer {
             }
         }
         return list;
+    }
+
+    /**
+     * Deserializes the cooldown sub-quests of a user from a JSON array.
+     *
+     * @param cooldownSubquestsJson The JSON array containing the serialized cooldown sub-quests.
+     * @return A LinkedHashMap mapping sub-quests to their cooldown end times.
+     */
+    public static LinkedHashMap<SubQuest, Instant> deserializeCooldownSubQuests(JsonArray cooldownSubquestsJson) {
+        LinkedHashMap<SubQuest, Instant> cooldownSubQuests = new LinkedHashMap<>();
+        for (JsonElement jsonElement : cooldownSubquestsJson) {
+            if (jsonElement.isJsonObject()) {
+                JsonObject subQuestObject = jsonElement.getAsJsonObject();
+                int subQuestId = subQuestObject.getAsJsonPrimitive("subquest-id").getAsInt();
+                String cooldownEndTimeStr = subQuestObject.getAsJsonPrimitive("cooldown").getAsString();
+
+                SubQuest subQuest = SubQuest.getById(subQuestId); // Implement getById method as needed
+                if (subQuest != null) {
+                    Instant cooldownEndTime = Instant.parse(cooldownEndTimeStr);
+                    cooldownSubQuests.put(subQuest, cooldownEndTime);
+                }
+            }
+        }
+        return cooldownSubQuests;
+    }
+
+    /**
+     * Deserializes the chance modifiers of a user from a JSON array.
+     *
+     * @param json The JSON array containing the serialized chance modifiers.
+     * @return A LinkedHashMap mapping Quest objects to their associated chance modifiers.
+     */
+    public static LinkedHashMap<Quest, Double> deserializeChanceModifiers(JsonArray json) {
+        LinkedHashMap<Quest, Double> chanceModifiers = new LinkedHashMap<>();
+        for (JsonElement element : json) {
+            if (element.isJsonObject()) {
+                JsonObject subQuestObject = element.getAsJsonObject();
+                int subQuestId = subQuestObject.get("subquest-id").getAsInt();
+
+                // Retrieve the corresponding Quest and SubQuest and update user's active sub-quests
+                Quest quest = Quest.getById(subQuestId); // Assuming Quest has a constructor that takes an ID
+
+                if (quest != null) {
+                    double chanceModifier = Double.parseDouble(subQuestObject.get("chance-modifier").getAsString());
+                    chanceModifiers.put(quest, chanceModifier);
+                }
+            }
+        }
+        return chanceModifiers;
     }
 }

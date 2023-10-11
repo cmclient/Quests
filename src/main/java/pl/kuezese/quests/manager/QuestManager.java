@@ -7,12 +7,14 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import pl.kuezese.quests.Quests;
 import pl.kuezese.quests.helper.ChatHelper;
 import pl.kuezese.quests.helper.ConfigHelper;
+import pl.kuezese.quests.helper.CooldownHelper;
 import pl.kuezese.quests.helper.NumberHelper;
 import pl.kuezese.quests.object.Quest;
 import pl.kuezese.quests.object.SubQuest;
 import pl.kuezese.quests.type.QuestAction;
 
 import java.io.File;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -50,6 +52,8 @@ public @Getter class QuestManager {
      * @param quests The Quests plugin instance.
      */
     public void load(Quests quests) {
+        this.quests.clear();
+
         File file = new File(quests.getDataFolder(), "quests.yml");
 
         if (!file.exists()) {
@@ -114,6 +118,20 @@ public @Getter class QuestManager {
                     return;
                 }
 
+                Duration cooldown = isItem ? CooldownHelper.parseDuration(cfg.getString(ConfigHelper.getPath(subQuestBaseKey, "cooldown"))) : null;
+
+                if (isItem && cooldown == null) {
+                    quests.getLogger().warning(String.format("Failed to load subquest: %s. Cooldown is invalid.", subQuests));
+                    return;
+                }
+
+                double chance = isItem ? cfg.getDouble(ConfigHelper.getPath(subQuestBaseKey, "chance")) : 0.0D;
+
+                if (isItem && chance == 0.0D) {
+                    quests.getLogger().warning(String.format("Failed to load subquest: %s. Chance is invalid.", subQuests));
+                    return;
+                }
+
                 List<String> rewards = Collections.unmodifiableList(cfg.getStringList(ConfigHelper.getPath(subQuestBaseKey, "rewards")));
 
                 if (rewards.isEmpty()) {
@@ -137,6 +155,8 @@ public @Getter class QuestManager {
                         .mmoItemId(mmoItemId)
                         .mobName(mobName)
                         .amount(amount)
+                        .cooldown(cooldown)
+                        .chance(chance)
                         .rewards(rewards)
                         .title(title)
                         .firstInteraction(firstInteraction)

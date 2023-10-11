@@ -38,6 +38,14 @@ quests:
         # Ilość potrzebnych itemów lub zabitych mobów, aby otrzymać nagrodę
         amount: 10
 
+        # Cooldown na oddawanie przedmiotu
+        # Jesli typ akcji to MOB mozesz pozostawic to puste.
+        cooldown: 2h
+
+        # Szansa na oddawanie przedmiotu
+        # Jesli typ akcji to MOB mozesz pozostawic to puste.
+        chance: 75.0
+
         # Wiadomosc do gracza przy pierwszej interakcji z NPC
         first-interaction:
           - ''
@@ -59,6 +67,7 @@ quests:
         progress:
           - ' &8✪ &7Liczba ryb w ekwipunku: &a{AMOUNT}'
           - ' &8✪ &7Postęp questa: &a{PROGRESS}/{TOTAL}'
+          - ' &8✪ &7Szansa na oddanie przedmiotu: &a{CHANCE}%'
           - ''
           - ' &a&oKliknij, aby oddać ryby i zwiększyć postęp questa.'
           - ''
@@ -122,6 +131,14 @@ quests:
         # Ilość potrzebnych itemów lub zabitych mobów, aby otrzymać nagrodę
         amount: 20
 
+        # Cooldown na oddawanie przedmiotu
+        # Jesli typ akcji to MOB mozesz pozostawic to puste.
+        cooldown: 2h
+
+        # Szansa na oddawanie przedmiotu
+        # Jesli typ akcji to MOB mozesz pozostawic to puste.
+        chance: 75.0
+
         # Wiadomosc do gracza przy pierwszej interakcji z NPC
         first-interaction:
           - ''
@@ -143,6 +160,7 @@ quests:
         progress:
           - ' &8✪ &7Liczba ryb w ekwipunku: &a{AMOUNT}'
           - ' &8✪ &7Postęp questa: &a{PROGRESS}/{TOTAL}'
+          - ' &8✪ &7Szansa na oddanie przedmiotu: &a{CHANCE}%'
           - ''
           - ' &a&oKliknij, aby oddać ryby i zwiększyć postęp questa.'
           - ''
@@ -206,6 +224,14 @@ quests:
 
         # Ilość potrzebnych itemów lub zabitych mobów, aby otrzymać nagrodę
         amount: 5
+
+        # Cooldown na oddawanie przedmiotu
+        # Jesli typ akcji to MOB mozesz pozostawic to puste.
+        cooldown: ''
+
+        # Szansa na oddawanie przedmiotu
+        # Jesli typ akcji to MOB mozesz pozostawic to puste.
+        chance: 75.0
 
         # Wiadomosc do gracza przy pierwszej interakcji z NPC
         first-interaction:
