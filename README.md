@@ -8,7 +8,7 @@
 A custom Minecraft plugin that adds quest functionality to your Minecraft server. Players can create, configure, and complete quests, making your server's gameplay more engaging and interactive.
 
 ## Warning
-- This project is unfinished!
+- This project is unfinished, some features are broken and there are currently no plans to complete this project.
 
 ## Features
 
